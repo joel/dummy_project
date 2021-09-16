@@ -50,5 +50,5 @@ before_script:
 jobs:
   include:
     - stage: Application correctness
-      script: bin/rails test:db
+      script: bundle exec rails test:db
       name: Test suite
