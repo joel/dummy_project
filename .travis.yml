@@ -16,7 +16,8 @@ env:
     - BUNDLE_JOBS=3
     - BUNDLE_RETRY=3
     - BUNDLE_PATH=vendor/cache
-    - BUNDLE_VERSION=2.2.16
+    - BUNDLE_VERSION=2.2.27
+    - GEM_VERSION=3.2.27
     - ARG_COMPOSE_WAIT_VER=2.9.0
     - DB_PORT=3333
     - DB_VERSION=5.7.33
@@ -25,12 +26,11 @@ git:
   depth: 1
 
 before_install:
-  - gem update --system
+  - gem update --system -v ${GEM_VERSION}
   - gem install bundler:${BUNDLE_VERSION}
 
 install:
-  - bundle config set --local deployment 'false'
-  - BUNDLE_PATH=vendor/cache bundler install
+  - BUNDLE_PATH=vendor/cache bundler install --local
 
 before_script:
   - docker run --rm --detach \
