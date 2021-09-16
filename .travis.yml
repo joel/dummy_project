@@ -38,10 +38,10 @@ install:
 
 before_script:
   - |
-    docker run --rm --detach
-      --name ${SERVICE_NAME}-db
-      --env MYSQL_ROOT_PASSWORD=root
-      --network=host
+    docker run --rm --detach \
+      --name ${SERVICE_NAME}-db \
+      --env MYSQL_ROOT_PASSWORD=root \
+      --network=host \
       mysql:${DB_VERSION}
 
   - docker build . --build-arg ARG_COMPOSE_WAIT_VER=2.9.0 --tag dummy_project/wait:2.9.0 -f dockerfiles/Dockerfile.wait
