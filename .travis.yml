@@ -1,13 +1,13 @@
 dist: focal # Ubuntu 20.04 LTS
 language: ruby
 
-addons:
-  hosts:
-    - travis.dev
+# addons:
+#   hosts:
+#     - travis.dev
 
-cache:
-  - apt
-  - bundler
+# cache:
+#   - apt
+#   - bundler
 
 rvm:
   - 3.0.0
@@ -33,6 +33,7 @@ services:
   - docker
 
 before_install:
+  - rvm get 1.29.12
   - gem update --system 3.2.27
 
 install:
