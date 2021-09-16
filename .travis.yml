@@ -1,9 +1,9 @@
 dist: focal # Ubuntu 20.04 LTS
 language: ruby
 
-# cache:
-#   - apt
-#   - bundler
+cache:
+  - apt
+  - bundler
 
 rvm:
   - 3.0.0
@@ -21,7 +21,7 @@ env:
     - ARG_COMPOSE_WAIT_VER=2.9.0
     - DB_PORT=3306
     - DB_VERSION=5.7.33
-    - CI
+    - CI=true
 
 git:
   depth: 1
@@ -39,17 +39,26 @@ install:
 before_script:
   - |
     docker run --rm --detach \
-      --name ${SERVICE_NAME}-db \
       --env MYSQL_ROOT_PASSWORD=root \
       --network=host \
       mysql:${DB_VERSION}
 
-  - docker build . --build-arg ARG_COMPOSE_WAIT_VER=2.9.0 --tag dummy_project/wait:2.9.0 -f dockerfiles/Dockerfile.wait
-  - docker run --rm --name dummy_project-wait --env WAIT_HOSTS=127.0.0.1:3306 --network=host dummy_project/wait:2.9.0
-  - bin/rails db:setup
+  - |
+    docker build . \
+      --build-arg ARG_COMPOSE_WAIT_VER=${ARG_COMPOSE_WAIT_VER} \
+      --tag ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER} \
+      -f dockerfiles/Dockerfile.wait
+
+  - |
+    docker run --rm \
+      --env WAIT_HOSTS=127.0.0.1:3306 \
+      --network=host \
+      ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER}
+
+  - CI=true bin/rails db:setup
 
 jobs:
   include:
     - stage: Application correctness
-      script: bin/rails test:db
+      script: CI=true bin/rails test:db
       name: Test suite
