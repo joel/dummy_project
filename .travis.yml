@@ -29,7 +29,7 @@ before_install:
   - gem install bundler:${BUNDLE_VERSION}
 
 install:
-  - bundle config set --local deployment 'true'
+  - bundle config set --local deployment 'false'
   - BUNDLE_PATH=vendor/cache bundler install --local
 
 before_script:
