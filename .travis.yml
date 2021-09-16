@@ -40,11 +40,11 @@ install:
   - BUNDLE_PATH=vendor/cache bundler install --local
 
 before_script:
-  - docker run --rm --detach --name dummy_project-db --env MYSQL_ROOT_PASSWORD=root --publish 3333:3306 mysql:5.7.33
+  - docker run --rm --detach --name dummy_project-db --env MYSQL_ROOT_PASSWORD=root --publish 3333:3306 --net="host" mysql:5.7.33
   - docker build . --build-arg ARG_COMPOSE_WAIT_VER=2.9.0 --tag dummy_project/wait:2.9.0 -f dockerfiles/Dockerfile.wait
   - docker container ls
   - netstat -atn | grep 3333 | grep 'LISTEN'
-  - docker run --rm --name dummy_project-wait --env WAIT_HOSTS=0.0.0.0:3333 dummy_project/wait:2.9.0
+  - docker run --rm --name dummy_project-wait --env WAIT_HOSTS=0.0.0.0:3333 --net="host" dummy_project/wait:2.9.0
   - bin/rails db:setup
 
 jobs:
