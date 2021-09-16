@@ -11,6 +11,8 @@ WHITE_LIST = %w[
 ].freeze
 
 begin
+  raise LoadError if ENV['CI']
+
   require 'dotenv/load'
   require 'dotenv'
 
