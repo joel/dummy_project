@@ -47,3 +47,4 @@ bin/docker
 bin/redis-gui
 bin/redis
 bin/db
+PRIVATE_NOTES.md
