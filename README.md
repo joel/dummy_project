@@ -15,6 +15,10 @@ Things you may want to cover:
 
 * Database initialization
 
+```
+bin/rails db:setup
+```
+
 * How to run the test suite
 
 ```
