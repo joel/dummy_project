@@ -19,6 +19,7 @@ env:
     - BUNDLE_VERSION=2.2.27
     - RUBYGEMS_VERSION=3.2.27
     - ARG_COMPOSE_WAIT_VER=2.9.0
+    - DB_HOST=127.0.0.1
     - DB_PORT=3306
     - DB_VERSION=5.7.33
     - CI=true
@@ -55,7 +56,7 @@ before_script:
       --network=host \
       ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER}
 
-  - BUNDLE_PATH=vendor/cache CI=true bin/rails db:setup
+  - DB_HOST=127.0.0.1 DB_PORT=3306 BUNDLE_PATH=vendor/cache CI=true bin/rails db:setup
 
 jobs:
   include:
