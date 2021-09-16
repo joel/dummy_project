@@ -1,0 +1,16 @@
+current directory: /Users/joelazemar/WorkSpace/Dockers/RailsDockerScritps/dummy_project/vendor/cache/ruby/3.0.0/gems/racc-1.5.2/ext/racc/cparse
+/Users/joelazemar/.asdf/installs/ruby/3.0.0/bin/ruby -I /Users/joelazemar/.asdf/installs/ruby/3.0.0/lib/ruby/site_ruby/3.0.0 -r ./siteconf20210916-90986-2gld4q.rb extconf.rb
+checking for rb_ary_subseq()... yes
+creating Makefile
+
+current directory: /Users/joelazemar/WorkSpace/Dockers/RailsDockerScritps/dummy_project/vendor/cache/ruby/3.0.0/gems/racc-1.5.2/ext/racc/cparse
+make DESTDIR\= clean
+
+current directory: /Users/joelazemar/WorkSpace/Dockers/RailsDockerScritps/dummy_project/vendor/cache/ruby/3.0.0/gems/racc-1.5.2/ext/racc/cparse
+make DESTDIR\=
+compiling cparse.c
+linking shared-object racc/cparse.bundle
+
+current directory: /Users/joelazemar/WorkSpace/Dockers/RailsDockerScritps/dummy_project/vendor/cache/ruby/3.0.0/gems/racc-1.5.2/ext/racc/cparse
+make DESTDIR\= install
+/usr/local/bin/ginstall -c -m 0755 cparse.bundle ./.gem.20210916-90986-j4c9l2/racc
