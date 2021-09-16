@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+WHITE_LIST = %w[
+  DB_HOST
+  DB_PORT
+  RAILS_LOG_TO_STDOUT
+  LOG_LEVEL
+  LOG_APPENDER
+  REDIS_URL
+  BUNDLE_PATH
+].freeze
+
+begin
+  require 'dotenv/load'
+  require 'dotenv'
+
+  Dotenv.load('.env.local')
+
+  ENV.slice(*WHITE_LIST).each do |k,v|
+    puts("#{k} => #{v}")
+  end
+rescue LoadError
+  puts("No Dotenv")
+end

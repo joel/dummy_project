@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
+
+load File.expand_path('../envfile', __FILE__)
+
 require "fileutils"
 
 # path to your application root.

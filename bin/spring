@@ -1,4 +1,7 @@
 #!/usr/bin/env ruby
+
+load File.expand_path('../envfile', __FILE__)
+
 if !defined?(Spring) && [nil, "development", "test"].include?(ENV["RAILS_ENV"])
   gem "bundler"
   require "bundler"
