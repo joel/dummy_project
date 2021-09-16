@@ -33,6 +33,8 @@ services:
 
 before_install:
   - gem update --system 3.2.27
+  - nvm install v14.17.2
+  - nvm use v14.17.2
 
 install:
   - bundle config set --local deployment 'true'
