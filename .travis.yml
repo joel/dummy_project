@@ -37,13 +37,19 @@ install:
   - BUNDLE_PATH=vendor/cache bundler install --local
 
 before_script:
-  - docker run --rm --detach --name ${SERVICE_NAME}-db --env MYSQL_ROOT_PASSWORD=root --network=host mysql:${DB_VERSION}
+  - |
+    docker run --rm --detach
+      --name ${SERVICE_NAME}-db
+      --env MYSQL_ROOT_PASSWORD=root
+      --network=host
+      mysql:${DB_VERSION}
+
   - docker build . --build-arg ARG_COMPOSE_WAIT_VER=2.9.0 --tag dummy_project/wait:2.9.0 -f dockerfiles/Dockerfile.wait
   - docker run --rm --name dummy_project-wait --env WAIT_HOSTS=127.0.0.1:3306 --network=host dummy_project/wait:2.9.0
-  - bundle exec rails db:setup
+  - bin/rails db:setup
 
 jobs:
   include:
     - stage: Application correctness
-      script: bundle exec rails test:db
+      script: bin/rails test:db
       name: Test suite
