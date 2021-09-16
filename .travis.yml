@@ -39,11 +39,11 @@ before_script:
     --publish $DB_PORT:3306 \
     mysql:$DB_VERSION
 
-    - docker build \
-    . \
-    --build-arg ARG_COMPOSE_WAIT_VER=$ARG_COMPOSE_WAIT_VER \
-    --tag $SERVICE_NAME/wait:$ARG_COMPOSE_WAIT_VER \
-    -f dockerfiles/Dockerfile.wait
+  - docker build \
+  . \
+  --build-arg ARG_COMPOSE_WAIT_VER=$ARG_COMPOSE_WAIT_VER \
+  --tag $SERVICE_NAME/wait:$ARG_COMPOSE_WAIT_VER \
+  -f dockerfiles/Dockerfile.wait
 
   - docker run --rm \
     --name $SERVICE_NAME-wait \
