@@ -38,3 +38,12 @@
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+bin/docker-scripts
+
+bin/docker-scripts
+
+bin/docker
+bin/redis-gui
+bin/redis
+bin/db
