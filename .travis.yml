@@ -29,7 +29,7 @@ before_install:
   - gem update --system $RUBYGEMS_VERSION
 
 install:
-  - echo "BUNDLE_PATH: $BUNDLE_PATH"
+  - $BUNDLE_PATH
   - BUNDLE_PATH=vendor/cache bundler install --local
 
 before_script:
