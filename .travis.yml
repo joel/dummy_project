@@ -1,0 +1,64 @@
+dist: focal # Ubuntu 20.04 LTS
+language: ruby
+
+cache:
+  - apt
+  - bundler
+
+rvm:
+  - 3.0.0
+
+env:
+  global:
+    - SERVICE_NAME=dummy_project
+    - BUNDLE_PATH=vendor/cache
+    - BUNDLE_WITHOUT=production
+    - BUNDLE_JOBS=3
+    - BUNDLE_RETRY=3
+    - BUNDLE_PATH=vendor/cache
+    - BUNDLE_VERSION=2.2.16
+    - ARG_COMPOSE_WAIT_VER=2.9.0
+    - DB_PORT=3333
+    - DB_VERSION=5.7.33
+
+git:
+  depth: 1
+
+before_install:
+  - gem update --system
+  - gem install bundler:${BUNDLE_VERSION}
+
+install:
+  - bundle config set --local deployment 'true'
+  - bundler install --local
+
+before_script:
+  - docker run --rm --detach \
+    --name ${SERVICE_NAME}-db \
+    --env MYSQL_ROOT_PASSWORD=root \
+    --publish ${DB_PORT}:3306 \
+    mysql:${DB_VERSION}
+
+    - docker build \
+    . \
+    --build-arg ARG_COMPOSE_WAIT_VER=${ARG_COMPOSE_WAIT_VER} \
+    --tag ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER} \
+    -f dockerfiles/Dockerfile.wait
+
+  - docker run --rm \
+    --name ${SERVICE_NAME}-wait \
+    --env WAIT_HOSTS=127.0.0.1:${DB_PORT} \
+    --env WAIT_TIMEOUT=90 \
+    --env WAIT_HOST_CONNECT_TIMEOUT=30 \
+    --env WAIT_BEFORE=2 \
+    --env WAIT_AFTER=0 \
+    --env WAIT_SLEEP_INTERVAL=1 \
+    ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER}
+
+    - bin/rails db:setup
+
+jobs:
+  include:
+    - stage: Application correctness
+      script: bin/rails test:db
+      name: Test suite
