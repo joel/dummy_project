@@ -23,6 +23,7 @@ env:
     - DB_PORT=3306
     - DB_VERSION=5.7.33
     - CI=true
+    - DB_PASSWORD=db_password
 
 git:
   depth: 1
@@ -40,7 +41,7 @@ install:
 before_script:
   - |
     docker run --rm --detach \
-      --env MYSQL_ROOT_PASSWORD=root \
+      --env MYSQL_ROOT_PASSWORD=${DB_PASSWORD} \
       --network=host \
       mysql:${DB_VERSION}
 
