@@ -11,6 +11,13 @@ Things you may want to cover:
 
 * Configuration
 
+```
+bundle lock --add-platform x86_64-linux Gemfile
+bundle install
+bundle cache --all
+bundle package --all-platforms
+```
+
 * Database creation
 
 * Database initialization
