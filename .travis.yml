@@ -26,34 +26,34 @@ git:
   depth: 1
 
 before_install:
-  - gem update --system ${RUBYGEMS_VERSION}
+  - gem update --system $RUBYGEMS_VERSION
 
 install:
-  - echo "BUNDLE_PATH: ${BUNDLE_PATH}"
+  - echo "BUNDLE_PATH: $BUNDLE_PATH"
   - BUNDLE_PATH=vendor/cache bundler install --local
 
 before_script:
   - docker run --rm --detach \
-    --name ${SERVICE_NAME}-db \
+    --name $SERVICE_NAME-db \
     --env MYSQL_ROOT_PASSWORD=root \
-    --publish ${DB_PORT}:3306 \
-    mysql:${DB_VERSION}
+    --publish $DB_PORT:3306 \
+    mysql:$DB_VERSION
 
     - docker build \
     . \
-    --build-arg ARG_COMPOSE_WAIT_VER=${ARG_COMPOSE_WAIT_VER} \
-    --tag ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER} \
+    --build-arg ARG_COMPOSE_WAIT_VER=$ARG_COMPOSE_WAIT_VER \
+    --tag $SERVICE_NAME/wait:$ARG_COMPOSE_WAIT_VER \
     -f dockerfiles/Dockerfile.wait
 
   - docker run --rm \
-    --name ${SERVICE_NAME}-wait \
-    --env WAIT_HOSTS=127.0.0.1:${DB_PORT} \
+    --name $SERVICE_NAME-wait \
+    --env WAIT_HOSTS=127.0.0.1:$DB_PORT \
     --env WAIT_TIMEOUT=90 \
     --env WAIT_HOST_CONNECT_TIMEOUT=30 \
     --env WAIT_BEFORE=2 \
     --env WAIT_AFTER=0 \
     --env WAIT_SLEEP_INTERVAL=1 \
-    ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER}
+    $SERVICE_NAME/wait:$ARG_COMPOSE_WAIT_VER
 
     - bin/rails db:setup
 
