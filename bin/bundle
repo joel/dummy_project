@@ -8,6 +8,8 @@
 # this file is here to facilitate running it.
 #
 
+load File.expand_path('../envfile', __FILE__) unless ENV['CI']
+
 require "rubygems"
 
 m = Module.new do

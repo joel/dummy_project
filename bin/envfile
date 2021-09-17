@@ -1,26 +1,21 @@
 #!/usr/bin/env ruby
 
-WHITE_LIST = %w[
-  DB_HOST
-  DB_PORT
-  RAILS_LOG_TO_STDOUT
-  LOG_LEVEL
-  LOG_APPENDER
-  REDIS_URL
-  BUNDLE_PATH
-].freeze
-
 begin
   raise LoadError if ENV['CI']
 
-  require 'dotenv/load'
-  require 'dotenv'
+  var_list = []
 
-  Dotenv.load('.env.local')
+  File.open('./.env.local', "r") do |env_file|
+    env_file.each do |line|
+      var, value = line.split("=")
+      ENV[var] = value
+      var_list << var
+    end
+  end
 
-  ENV.slice(*WHITE_LIST).each do |k,v|
+  ENV.slice(*var_list).each do |k,v|
     puts("#{k} => #{v}")
   end
 rescue LoadError
-  puts("No Dotenv")
+  puts(".env.local ignored!")
 end
