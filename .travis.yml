@@ -4,6 +4,7 @@ language: ruby
 cache:
   - apt
   - bundler
+  - npm
 
 rvm:
   - 3.0.0
@@ -24,18 +25,21 @@ services:
   - docker
 
 before_install:
+  - |
+    export SERVICE_NAME=dummy_project \
+    export RUBYGEMS_VERSION=3.2.27 \
+    export ARG_COMPOSE_WAIT_VER=2.9.0 \
+    export DB_VERSION=5.7.33 \
+    export DB_PASSWORD=db_password \
+    export NODE_VERSION=v14.17.2
+
   - gem update --system ${RUBYGEMS_VERSION}
   - nvm install ${NODE_VERSION}
   - nvm use ${NODE_VERSION}
 
 install:
   - bundle config set --local deployment 'true'
-  - |
-    BUNDLE_WITHOUT=production \
-    BUNDLE_JOBS=3 \
-    BUNDLE_RETRY=3 \
-    BUNDLE_PATH=vendor/cache \
-    bundler install --local
+  - bundler install --local
 
 before_script:
   - |
@@ -56,27 +60,12 @@ before_script:
       --network=host \
       ${SERVICE_NAME}/wait:${ARG_COMPOSE_WAIT_VER}
 
-  - |
-    DB_HOST=127.0.0.1 \
-    DB_PORT=3306 \
-    BUNDLE_PATH=vendor/cache \
-    CI=true \
-    bin/rails db:setup
+  - bin/rails db:setup
 
-  - |
-    DB_HOST=127.0.0.1 \
-    DB_PORT=3306 \
-    BUNDLE_PATH=vendor/cache \
-    CI=true \
-    bin/rails webpacker:install
+  - bin/rails webpacker:install
 
 jobs:
   include:
     - stage: Application correctness
-      script: |
-        DB_HOST=127.0.0.1 \
-        DB_PORT=3306 \
-        BUNDLE_PATH=vendor/cache \
-        CI=true \
-        bin/rails test:db
+      script: bin/rails test:db
       name: Test suite
