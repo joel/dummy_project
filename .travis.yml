@@ -4,6 +4,7 @@ language: ruby
 cache:
   - apt
   - bundler
+  - npm
 
 rvm:
   - 3.0.0
