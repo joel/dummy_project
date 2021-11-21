@@ -1,0 +1,135 @@
+name: Docker Cached Image Artifact
+
+on: [push,pull_request]
+
+env:
+  SERVICE_NAME: dummy_project
+  APP_IMAGE_TAG: dummy_project/app-ci:latest
+  DB_PASSWORD: db_password
+  DB_VERSION: 5.7.33
+  RUBY_VERSION: 3.0.0
+  VERSION: latest
+  COMPOSE_WAIT_VER: 2.9.0
+
+jobs:
+
+  image-build-and-cache:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker Image from Source Code
+        uses: docker/build-push-action@v2
+        with:
+          build-args: |
+            ARG_RUBY_VERSION=${{ env.RUBY_VERSION }}
+          context: .
+          file: dockerfiles/Dockerfile-ci
+          tags: ${{ env.APP_IMAGE_TAG }}
+          outputs: type=docker,dest=/tmp/image-app.tar
+
+      - name: Upload docker image
+        uses: actions/upload-artifact@v2
+        with:
+          name: image-app.tar
+          path: /tmp/image-app.tar
+          retention-days: 1
+
+      - name: Build Wait Image
+        uses: docker/build-push-action@v2
+        with:
+          build-args: |
+            ARG_COMPOSE_WAIT_VER=${{ env.COMPOSE_WAIT_VER }}
+          context: .
+          file: dockerfiles/Dockerfile-wait
+          tags: ${{ env.SERVICE_NAME }}/wait:${{ env.COMPOSE_WAIT_VER }}
+          outputs: type=docker,dest=/tmp/image-wait.tar
+
+      - name: Upload docker image
+        uses: actions/upload-artifact@v2
+        with:
+          name: image-wait.tar
+          path: /tmp/image-wait.tar
+          retention-days: 1
+
+  test-app:
+
+    needs: image-build-and-cache
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Create Network
+        run: docker network create ${{ env.SERVICE_NAME }}-bridge-docker-network
+
+      - name: Start Db
+        run: |
+          docker run --rm --detach \
+            --name ${{ env.SERVICE_NAME }}-db \
+            --env MYSQL_ROOT_PASSWORD=${{ env.DB_PASSWORD }} \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            mysql:${{ env.DB_VERSION }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Download docker image
+        uses: actions/download-artifact@v2
+        with:
+          name: image-app.tar
+          path: /tmp
+
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/image-app.tar
+
+      - name: Download docker image
+        uses: actions/download-artifact@v2
+        with:
+          name: image-wait.tar
+          path: /tmp
+
+      - name: Load docker image
+        run: |
+          docker load --input /tmp/image-wait.tar
+
+      - name: Run Wait Container
+        run: |
+          docker run --rm \
+            --env WAIT_HOSTS=${{ env.SERVICE_NAME }}-db:3306 \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            ${{ env.SERVICE_NAME }}/wait:${{ env.COMPOSE_WAIT_VER }}
+
+      - name: Prepare Env
+        run: |
+          docker run --rm \
+            --env DB_HOST=${{ env.SERVICE_NAME }}-db \
+            --env DB_PORT=3306 \
+            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
+            --env DB_USERNAME=root \
+            --env CI=true \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            ${{ env.SERVICE_NAME }}/app-ci:${{ env.VERSION }} /bin/bash -c "bin/rails db:prepare"
+
+      - name: Run Test
+        run: |
+          docker run --rm \
+            --env DB_HOST=${{ env.SERVICE_NAME }}-db \
+            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
+            --env DB_USERNAME=root \
+            --env CI=true \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            ${{ env.SERVICE_NAME }}/app-ci:${{ env.VERSION }} /bin/bash -c "bin/rails test"
