@@ -78,7 +78,7 @@ jobs:
 
     needs: image-build-and-cache
 
-    uses: joel/reusable-workflow/.github/workflows/reusable-workflow.yml@main
+    uses: joel/dummy_project/.github/workflows/reusable-workflow.yml@main
     with:
       run-test: "bin/rake test:channels"
       image-build-and-cache-outputs-sha: ${{ needs.image-build-and-cache.outputs.sha }}
@@ -87,7 +87,7 @@ jobs:
 
     needs: image-build-and-cache
 
-    uses: joel/reusable-workflow/.github/workflows/reusable-workflow.yml@main
+    uses: joel/dummy_project/.github/workflows/reusable-workflow.yml@main
     with:
       run-test: "bin/rake test:controllers"
       image-build-and-cache-outputs-sha: ${{ needs.image-build-and-cache.outputs.sha }}
@@ -96,7 +96,7 @@ jobs:
 
     needs: image-build-and-cache
 
-    uses: joel/reusable-workflow/.github/workflows/reusable-workflow.yml@main
+    uses: joel/dummy_project/.github/workflows/reusable-workflow.yml@main
     with:
       run-test: "bin/rake test:models"
       image-build-and-cache-outputs-sha: ${{ needs.image-build-and-cache.outputs.sha }}
@@ -105,7 +105,7 @@ jobs:
 
     needs: image-build-and-cache
 
-    uses: joel/reusable-workflow/.github/workflows/reusable-workflow.yml@main
+    uses: joel/dummy_project/.github/workflows/reusable-workflow.yml@main
     with:
       run-test: "bin/rake test:helpers"
       image-build-and-cache-outputs-sha: ${{ needs.image-build-and-cache.outputs.sha }}
@@ -114,7 +114,7 @@ jobs:
 
     needs: image-build-and-cache
 
-    uses: joel/reusable-workflow/.github/workflows/reusable-workflow.yml@main
+    uses: joel/dummy_project/.github/workflows/reusable-workflow.yml@main
     with:
       run-test: "bin/rake test:mailers"
       image-build-and-cache-outputs-sha: ${{ needs.image-build-and-cache.outputs.sha }}
