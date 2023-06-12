@@ -32,14 +32,17 @@ ENV BUNDLE_RETRY 3
 
 ENV NODE_VERSION ${NODE_VERSION}
 
+ARG ARG_RUBYGEMS_VERSION
+ENV RUBYGEMS_VERSION ${ARG_RUBYGEMS_VERSION}
+
 WORKDIR /${APP_PATH}
 
 COPY . /${APP_PATH}
 
-RUN gem update --system
+RUN gem update --system ${RUBYGEMS_VERSION}
 
 RUN bundle config set --local deployment 'true'
-RUN bundler install --local
+RUN bundler install
 
 RUN bin/rails webpacker:install
 
