@@ -8,6 +8,7 @@ env:
   IMAGE_CACHE_KEY: docker-cache-image
   COMPOSE_WAIT_VER: 2.9.0
   RUBY_VERSION: 3.0.0
+  ARG_RUBYGEMS_VERSION: 3.4.13
 
 jobs:
 
@@ -54,6 +55,7 @@ jobs:
           docker build \
             . \
             --build-arg ARG_RUBY_VERSION=${RUBY_VERSION} \
+            --build-arg ARG_RUBYGEMS_VERSION=${ARG_RUBYGEMS_VERSION} \
             --tag ${{ env.SERVICE_NAME }}/app-ci:latest \
             -f dockerfiles/Dockerfile-ci
           mkdir -p ${{ env.IMAGE_CACHE_DIR }}/code
