@@ -1,0 +1,94 @@
+name: The Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      run-test:
+        required: true
+        type: string
+      image-build-and-cache-outputs-sha:
+        required: true
+        type: string
+
+env:
+  SERVICE_NAME: dummy_project
+  IMAGE_CACHE_DIR: /tmp/cache/docker-image
+  IMAGE_CACHE_KEY: docker-cache-image
+  DB_PASSWORD: db_password
+  DB_VERSION: 5.7.33
+  RUBY_VERSION: 3.0.0
+  VERSION: latest
+  COMPOSE_WAIT_VER: 2.9.0
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Create Network
+        run: docker network create ${{ env.SERVICE_NAME }}-bridge-docker-network
+
+      - name: Start Db
+        run: |
+          docker run --rm --detach \
+            --name ${{ env.SERVICE_NAME }}-db \
+            --env MYSQL_ROOT_PASSWORD=${{ env.DB_PASSWORD }} \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            mysql:${{ env.DB_VERSION }}
+
+      - name: Declare Cache Registry
+        id: cache-docker-images
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.IMAGE_CACHE_DIR }}/code
+          key: ${{ runner.os }}-docker-images-${{ inputs.image-build-and-cache-outputs-sha }}
+
+      - name: Check Cache
+        run: |
+          ls -l ${{ env.IMAGE_CACHE_DIR }}
+
+      - name: Docker load
+        run: |
+          docker load --input ${{ env.IMAGE_CACHE_DIR }}/code/image-app.tar
+
+      - name: Declare Cache Registry For Utilities
+        id: cache-docker-image-utilities
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.IMAGE_CACHE_DIR }}/utilities
+          key: ${{ runner.os }}-docker-images-${{ env.COMPOSE_WAIT_VER }}-${{ hashFiles('dockerfiles/Dockerfile-wait') }}
+
+      - name: Docker load
+        run: |
+          docker load --input ${{ env.IMAGE_CACHE_DIR }}/utilities/image-wait.tar
+
+      - name: Run Wait Container
+        run: |
+          docker run --rm \
+            --env WAIT_HOSTS=${{ env.SERVICE_NAME }}-db:3306 \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            ${{ env.SERVICE_NAME }}/wait:${{ env.COMPOSE_WAIT_VER }}
+
+      - name: Prepare Env
+        run: |
+          docker run --rm \
+            --env DB_HOST=${{ env.SERVICE_NAME }}-db \
+            --env DB_PORT=3306 \
+            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
+            --env DB_USERNAME=root \
+            --env CI=true \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            ${{ env.SERVICE_NAME }}/app-ci:${{ env.VERSION }} /bin/bash -c "bin/rails db:prepare"
+
+      - name: Run Test
+        run: |
+          docker run --rm \
+            --env DB_HOST=${{ env.SERVICE_NAME }}-db \
+            --env DB_PASSWORD=${{ env.DB_PASSWORD }} \
+            --env DB_USERNAME=root \
+            --env CI=true \
+            --network=${{ env.SERVICE_NAME }}-bridge-docker-network \
+            ${{ env.SERVICE_NAME }}/app-ci:${{ env.VERSION }} /bin/bash -c "${{ inputs.run-test }}"
