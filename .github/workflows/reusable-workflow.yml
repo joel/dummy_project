@@ -13,10 +13,8 @@ on:
 env:
   SERVICE_NAME: dummy_project
   IMAGE_CACHE_DIR: /tmp/cache/docker-image
-  IMAGE_CACHE_KEY: docker-cache-image
   DB_PASSWORD: db_password
   DB_VERSION: 5.7.33
-  RUBY_VERSION: 3.0.0
   VERSION: latest
   COMPOSE_WAIT_VER: 2.9.0
 
