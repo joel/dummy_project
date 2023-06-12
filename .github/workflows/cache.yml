@@ -2,6 +2,12 @@ name: Docker Cached Image
 
 on: [push]
 
+env:
+  SERVICE_NAME: dummy_project
+  IMAGE_CACHE_DIR: /tmp/cache/docker-image
+  IMAGE_CACHE_KEY: docker-cache-image
+  COMPOSE_WAIT_VER: 2.9.0
+
 jobs:
 
   image-build-and-cache:
